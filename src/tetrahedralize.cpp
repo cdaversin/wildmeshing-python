@@ -18,10 +18,10 @@
 
 #include <memory>
 
-#ifdef FLOAT_TETWILD_USE_TBB
-#include <tbb/task_scheduler_init.h>
-#include <thread>
-#endif
+// #ifdef FLOAT_TETWILD_USE_TBB
+// #include <tbb/task_scheduler_init.h>
+// #include <thread>
+// #endif
 
 using namespace floatTetWild;
 using namespace Eigen;
@@ -54,15 +54,15 @@ namespace wildmeshing_binding
 
         unsigned int max_threads = std::numeric_limits<unsigned int>::max();
         unsigned int num_threads = 1;
-#ifdef FLOAT_TETWILD_USE_TBB
-        const size_t MB = 1024 * 1024;
-        const size_t stack_size = 64 * MB;
-        num_threads = std::max(1u, std::thread::hardware_concurrency());
-        num_threads = std::min(max_threads, num_threads);
-        // params.num_threads = num_threads;
-        std::cout << "TBB threads " << num_threads << std::endl;
-        tbb::task_scheduler_init scheduler(num_threads, stack_size);
-#endif
+// #ifdef FLOAT_TETWILD_USE_TBB
+//         const size_t MB = 1024 * 1024;
+//         const size_t stack_size = 64 * MB;
+//         num_threads = std::max(1u, std::thread::hardware_concurrency());
+//         num_threads = std::min(max_threads, num_threads);
+//         // params.num_threads = num_threads;
+//         std::cout << "TBB threads " << num_threads << std::endl;
+//         tbb::task_scheduler_init scheduler(num_threads, stack_size);
+// #endif
         set_num_threads(num_threads);
     }
 
@@ -214,7 +214,7 @@ namespace wildmeshing_binding
 
     void Tetrahedralizer::set_meshes(const std::vector<Eigen::MatrixXd> &V, const std::vector<Eigen::MatrixXi> &F)
     {
-        std::vector<std::vector<Vector3>> vs(V.size());
+        std::vector<std::vector<floatTetWild::Vector3>> vs(V.size());
         std::vector<std::vector<floatTetWild::Vector3i>> fs(F.size());
 
         if (V.size() != F.size())
@@ -300,7 +300,7 @@ namespace wildmeshing_binding
     {
         Parameters &params = mesh.params;
         params.apply_sizing_field = true;
-        params.get_sizing_field_value = [V_in, T_in, values](const Vector3 &p)
+        params.get_sizing_field_value = [V_in, T_in, values](const floatTetWild::Vector3 &p)
         {
             GEO::Mesh bg_mesh;
             bg_mesh.vertices.clear();
@@ -326,16 +326,16 @@ namespace wildmeshing_binding
                 return -1.;
 
             // compute barycenter
-            std::array<Vector3, 4> vs;
+            std::array<floatTetWild::Vector3, 4> vs;
             for (int j = 0; j < 4; j++)
             {
-                vs[j] = Vector3(V_in(T_in(bg_t_id * 4 + j) * 3), V_in(T_in(bg_t_id * 4 + j) * 3 + 1),
-                                V_in(T_in(bg_t_id * 4 + j) * 3 + 2));
+                vs[j] = floatTetWild::Vector3(V_in(T_in(bg_t_id * 4 + j) * 3), V_in(T_in(bg_t_id * 4 + j) * 3 + 1),
+					      V_in(T_in(bg_t_id * 4 + j) * 3 + 2));
             }
             double value = 0;
             for (int j = 0; j < 4; j++)
             {
-                Vector3 n = ((vs[(j + 1) % 4] - vs[j]).cross(vs[(j + 2) % 4] - vs[j])).normalized();
+                floatTetWild::Vector3 n = ((vs[(j + 1) % 4] - vs[j]).cross(vs[(j + 2) % 4] - vs[j])).normalized();
                 double d = (vs[(j + 3) % 4] - vs[j]).dot(n);
                 if (d == 0)
                     continue;
@@ -346,7 +346,7 @@ namespace wildmeshing_binding
         };
     }
 
-    void Tetrahedralizer::set_sizing_field(std::function<double(const Vector3 &p)> &field)
+    void Tetrahedralizer::set_sizing_field(std::function<double(const floatTetWild::Vector3 &p)> &field)
     {
         Parameters &params = mesh.params;
         params.apply_sizing_field = true;
@@ -676,8 +676,12 @@ namespace wildmeshing_binding
                               "set_sizing_field", [](Tetrahedralizer &t, const Eigen::MatrixXd &V, Eigen::MatrixXi &T, const Eigen::VectorXd &values)
                               { t.set_sizing_field(V, T, values); },
                               "set sizing field", py::arg("V"), py::arg("T"), py::arg("values"))
+	                  .def(
+			       "set_sizing_field", [](Tetrahedralizer &t, const std::string &path)
+			       { t.set_sizing_field(path); },
+                              "set sizing field", py::arg("path"))
                           .def(
-                              "set_sizing_field_from_func", [](Tetrahedralizer &t, std::function<double(const Vector3 &p)> &field)
+                              "set_sizing_field_from_func", [](Tetrahedralizer &t, std::function<double(const floatTetWild::Vector3 &p)> &field)
                               { t.set_sizing_field(field); },
                               "set sizing field", py::arg("field"))
                           .def(
