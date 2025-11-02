@@ -18,10 +18,9 @@
 
 #include <memory>
 
-// #ifdef FLOAT_TETWILD_USE_TBB
-// #include <tbb/task_scheduler_init.h>
-// #include <thread>
-// #endif
+#ifdef FLOAT_TETWILD_USE_TBB
+#include <thread>
+#endif
 
 using namespace floatTetWild;
 using namespace Eigen;
@@ -54,15 +53,15 @@ namespace wildmeshing_binding
 
         unsigned int max_threads = std::numeric_limits<unsigned int>::max();
         unsigned int num_threads = 1;
-// #ifdef FLOAT_TETWILD_USE_TBB
-//         const size_t MB = 1024 * 1024;
-//         const size_t stack_size = 64 * MB;
-//         num_threads = std::max(1u, std::thread::hardware_concurrency());
-//         num_threads = std::min(max_threads, num_threads);
-//         // params.num_threads = num_threads;
-//         std::cout << "TBB threads " << num_threads << std::endl;
-//         tbb::task_scheduler_init scheduler(num_threads, stack_size);
-// #endif
+#ifdef FLOAT_TETWILD_USE_TBB
+        const size_t MB = 1024 * 1024;
+        const size_t stack_size = 64 * MB;
+        num_threads = std::max(1u, std::thread::hardware_concurrency());
+        num_threads = std::min(max_threads, num_threads);
+        // params.num_threads = num_threads;
+        std::cout << "TBB threads " << num_threads << std::endl;
+	set_num_threads(num_threads);
+#endif
         set_num_threads(num_threads);
     }
 
