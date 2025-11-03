@@ -66,7 +66,6 @@ add_library(wildmeshing MODULE
 	src/tetrahedralize.cpp src/tetrahedralize.hpp)
 target_include_directories(wildmeshing PRIVATE ${THIRD_PARTY_DIR}/triwild/src)
 target_compile_features(wildmeshing PUBLIC cxx_std_14)
-target_compile_options(wildmeshing PRIVATE -Wno-error=array-bounds)
 
 target_link_libraries(wildmeshing PRIVATE triwild_lib)
 target_link_libraries(wildmeshing PRIVATE FloatTetwild)

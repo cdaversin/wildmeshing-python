@@ -16,4 +16,14 @@ include(WildMeshingDownloadExternal)
 ################################################################################
 # Required libraries
 ################################################################################
+include(FetchContent)
+message(STATUS "(RE-)Installing libigl")
+FetchContent_Declare(
+	libigl
+        GIT_REPOSITORY https://github.com/libigl/libigl.git
+        GIT_TAG        v2.6.0   
+)
+set(LIBIGL_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(LIBIGL_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(libigl)
 
