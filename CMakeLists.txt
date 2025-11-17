@@ -71,8 +71,3 @@ target_link_libraries(wildmeshing PRIVATE triwild_lib)
 target_link_libraries(wildmeshing PRIVATE FloatTetwild)
 target_link_libraries(wildmeshing PRIVATE pybind11::module)
 set_target_properties(wildmeshing PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}" SUFFIX "${PYTHON_MODULE_EXTENSION}")
-
-
-
-
-
